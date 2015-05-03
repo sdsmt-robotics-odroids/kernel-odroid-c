@@ -1,0 +1,146 @@
+From b0c84b14f3b156ed41c46e73bfa26c4c2c3f05ad Mon Sep 17 00:00:00 2001
+From: Scott K Logan <logans@cottsay.net>
+Date: Sat, 2 May 2015 21:34:42 -0700
+Subject: [PATCH] amlogic: Preliminary support for vendor buttons
+
+---
+ drivers/amlogic/hdmi/hdmi_tx/Makefile          |  2 +-
+ drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c | 34 ++++++++++++++++++++++++++
+ drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c     | 30 +++++++++++++++++++++--
+ include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h    |  7 ++++++
+ 4 files changed, 70 insertions(+), 3 deletions(-)
+ create mode 100644 drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c
+
+diff --git a/drivers/amlogic/hdmi/hdmi_tx/Makefile b/drivers/amlogic/hdmi/hdmi_tx/Makefile
+index 5d423d0..22cb720 100755
+--- a/drivers/amlogic/hdmi/hdmi_tx/Makefile
++++ b/drivers/amlogic/hdmi/hdmi_tx/Makefile
+@@ -1,5 +1,5 @@
+ obj-$(CONFIG_AML_HDMI_TX)		+= hdmitx.o
+ 
+-hdmitx-objs := hdmi_tx.o hdmi_tx_cec.o hdmi_cec_key.o hdmi_tx_video.o hdmi_tx_audio.o hdmi_tx_edid.o hdmi_tx_audio.o hdmi_tx_hdcp.o
++hdmitx-objs := hdmi_tx.o hdmi_tx_cec.o hdmi_cec_key.o hdmi_tx_video.o hdmi_tx_audio.o hdmi_tx_edid.o hdmi_tx_audio.o hdmi_tx_hdcp.o hdmi_cec_vendor.o
+ 
+ #EXTRA_CFLAGS += -O2
+diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c
+new file mode 100644
+index 0000000..13b9fe8
+--- /dev/null
++++ b/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c
+@@ -0,0 +1,34 @@
++#include <linux/cdev.h>
++
++#include <mach/power_gate.h>
++
++#include <linux/amlogic/hdmi_tx/hdmi_tx_cec.h>
++
++void cec_vendor_remote_btn_down_irq(void)
++{
++    unsigned char initiator = cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].content.msg.header >> 4;
++
++    if(initiator != 0xf)
++    {
++        switch(cec_global_info.cec_node_info[initiator].vendor_id) {
++            case CEC_VENDOR_UNKNOWN:
++            default:
++                break;
++        }
++    }
++}
++
++void cec_vendor_remote_btn_up_irq(void)
++{
++    unsigned char initiator = cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].content.msg.header >> 4;
++
++    if(initiator != 0xf)
++    {
++        switch(cec_global_info.cec_node_info[initiator].vendor_id) {
++            case CEC_VENDOR_UNKNOWN:
++            default:
++                break;
++        }
++    }
++}
++
+diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c
+index 88fdb51..ffb3505 100755
+--- a/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c
++++ b/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c
+@@ -437,6 +437,30 @@ void cec_input_handle_message(void)
+             }
+             cec_user_control_pressed_irq();
+             break;
++        case CEC_OC_VENDOR_REMOTE_BUTTON_DOWN:
++            // check valid msg
++            {
++                unsigned char opernum;
++                unsigned char follower;
++                unsigned char initiator;
++                opernum  = cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].operand_num;
++                follower = cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].content.msg.header & 0x0f;
++                initiator = cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].content.msg.header & 0xf0;
++                if(opernum > 15 || follower == 0xf) break;
++            }
++            cec_vendor_remote_btn_up_irq();
++            break;
++        case CEC_OC_VENDOR_REMOTE_BUTTON_UP:
++            // check valid msg
++            {
++                unsigned char opernum;
++                unsigned char follower;
++                opernum  = cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].operand_num;
++                follower = cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].content.msg.header & 0x0f;
++                if(opernum != 0 || follower == 0xf) break;
++            }
++            cec_vendor_remote_btn_down_irq();
++            break;
+         default:
+             break;
+         }
+@@ -1181,6 +1205,10 @@ void cec_handle_message(cec_rx_message_t* pcec_message)
+             break;
+         case CEC_OC_USER_CONTROL_RELEASED:
+             break;
++        case CEC_OC_VENDOR_REMOTE_BUTTON_DOWN:
++            break;
++        case CEC_OC_VENDOR_REMOTE_BUTTON_UP:
++            break;
+         case CEC_OC_IMAGE_VIEW_ON:      //not support in source
+             cec_usrcmd_set_imageview_on( CEC_TV_ADDR );   // Wakeup TV
+             break;
+@@ -1229,8 +1257,6 @@ void cec_handle_message(cec_rx_message_t* pcec_message)
+             }
+             break;
+         case CEC_OC_GET_MENU_LANGUAGE:
+-        case CEC_OC_VENDOR_REMOTE_BUTTON_DOWN:
+-        case CEC_OC_VENDOR_REMOTE_BUTTON_UP:
+         case CEC_OC_CLEAR_ANALOGUE_TIMER:
+         case CEC_OC_CLEAR_DIGITAL_TIMER:
+         case CEC_OC_CLEAR_EXTERNAL_TIMER:
+diff --git a/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h b/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h
+index 51a7190..595bf4e 100644
+--- a/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h
++++ b/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h
+@@ -495,6 +495,10 @@ typedef enum {
+     DEVICE_MENU_INACTIVE,    
+ } cec_device_menu_state_e;
+ 
++typedef enum {
++    CEC_VENDOR_UNKNOWN = 0,
++} cec_vendor_id_e;
++
+ void cec_enable_irq(void);
+ void cec_disable_irq(void);
+ 
+@@ -603,5 +607,8 @@ extern void cec_key_init(void);
+ extern __u16 cec_key_map[];
+ extern cec_global_info_t cec_global_info;
+ 
++void cec_vendor_remote_btn_up_irq(void);
++void cec_vendor_remote_btn_down_irq(void);
++
+ #endif
+ 
+-- 
+2.1.0
+

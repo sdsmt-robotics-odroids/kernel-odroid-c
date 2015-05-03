@@ -1,0 +1,18 @@
+--- a/backports/Makefile	2015-04-20 06:03:05.000000000 -0700
++++ b/backports/Makefile	2015-04-21 18:58:33.013506505 -0700
+@@ -19,7 +19,7 @@
+ 
+ export backport_srctree = $(M)
+ else
+-export BACKPORT_DIR = backports/
++export BACKPORT_DIR = backports
+ export backport_srctree = $(BACKPORT_DIR)
+ NOSTDINC_FLAGS := \
+ 	-I$(BACKPORT_DIR)/backport-include/ \
+@@ -54,4 +54,4 @@
+ 
+ obj-$(CONFIG_BACKPORT_USB_WDM) += drivers/usb/class/
+ obj-$(CONFIG_BACKPORT_USB_USBNET) += drivers/net/usb/
+-obj-y += drivers/realtek/
+\ No newline at end of file
++obj-y += drivers/realtek/

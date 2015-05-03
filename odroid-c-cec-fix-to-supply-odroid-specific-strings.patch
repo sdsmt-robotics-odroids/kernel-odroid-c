@@ -1,0 +1,29 @@
+From 6e0d539c69806d5ed88b6a35d828a5da8d575014 Mon Sep 17 00:00:00 2001
+From: Dongjin Kim <tobetter@gmail.com>
+Date: Thu, 5 Mar 2015 18:12:52 +0900
+Subject: [PATCH] ODROID-C/dts: cec: Fix to supply ODROID specific strings
+
+Change-Id: Ibe09525bc3677dab07793d0a1a99316a46e51cc3
+Signed-off-by: Dongjin Kim <tobetter@gmail.com>
+---
+ arch/arm/boot/dts/meson8b_odroidc.dts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/meson8b_odroidc.dts b/arch/arm/boot/dts/meson8b_odroidc.dts
+index 50e040c7..64db48a 100755
+--- a/arch/arm/boot/dts/meson8b_odroidc.dts
++++ b/arch/arm/boot/dts/meson8b_odroidc.dts
+@@ -613,10 +613,10 @@
+         pwr-ctrl = <&pwr_ctrl>;
+ 
+         vend_data: vend_data{
+-            vendor_name = "Amlogic";           /* Max Chars: 8     */
++            vendor_name = "Hardkernel";           /* Max Chars: 8     */
+             vendor_id = <0x000000>;                 /* Refer to http://standards.ieee.org/develop/regauth/oui/oui.txt   */
+-            product_desc = "M8 MBox SKTv1";        /* Max Chars: 16    */
+-            cec_osd_string = "MBox";        /* Max Chars: 14    */
++            product_desc = "ODROID-C1";        /* Max Chars: 16    */
++            cec_osd_string = "ODROID";        /* Max Chars: 14    */
+             cec_config = <0x00000f>;
+             ao_cec = <0x000001>;
+         };

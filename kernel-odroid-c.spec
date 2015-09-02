@@ -30,7 +30,7 @@ Summary: The Linux kernel
 # For non-released -rc kernels, this will be appended after the rcX and
 # gitX tags, so a 3 here would become part of release "0.rcX.gitX.3"
 #
-%global baserelease 1
+%global baserelease 1.1
 %global fedora_build %{baserelease}
 
 # base_sublevel is the kernel version we're starting with and patching
@@ -422,6 +422,7 @@ Patch80011: amlogic-fix-cec_config-when-not-overridden-by-dtb.patch
 Patch80012: amlogic-always-reply-to-set-stream-path-cec-message.patch
 Patch80013: amlogic-get-tv-vendor-id-on-cec-startup.patch
 Patch80014: amlogic-record-device-vendor-ids.patch
+Patch80015: arm-LLVMLinux-use-static-inline-in-arm-ftrace-h.patch
 
 # END OF PATCH DEFINITIONS
 
@@ -1100,6 +1101,7 @@ ApplyPatch amlogic-fix-cec_config-when-not-overridden-by-dtb.patch
 ApplyPatch amlogic-always-reply-to-set-stream-path-cec-message.patch
 ApplyPatch amlogic-get-tv-vendor-id-on-cec-startup.patch
 ApplyPatch amlogic-record-device-vendor-ids.patch
+ApplyPatch arm-LLVMLinux-use-static-inline-in-arm-ftrace-h.patch
 
 # END OF PATCH APPLICATIONS
 

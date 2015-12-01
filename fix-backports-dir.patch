@@ -9,10 +9,3 @@
  export backport_srctree = $(BACKPORT_DIR)
  NOSTDINC_FLAGS := \
  	-I$(BACKPORT_DIR)/backport-include/ \
-@@ -54,4 +54,4 @@
- 
- obj-$(CONFIG_BACKPORT_USB_WDM) += drivers/usb/class/
- obj-$(CONFIG_BACKPORT_USB_USBNET) += drivers/net/usb/
--obj-y += drivers/realtek/
-\ No newline at end of file
-+obj-y += drivers/realtek/

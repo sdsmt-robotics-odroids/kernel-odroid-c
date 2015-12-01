@@ -1,4 +1,4 @@
-%global commit a7614398199a077cdfe1e4ba821510c05ca847ce
+%global commit 98b7d2c2c9da3d43d42adce240edef98c3c50a43
 %define variant -odroid-c
 %define _without_pae 1
 
@@ -30,7 +30,7 @@ Summary: The Linux kernel
 # For non-released -rc kernels, this will be appended after the rcX and
 # gitX tags, so a 3 here would become part of release "0.rcX.gitX.3"
 #
-%global baserelease 1.1
+%global baserelease 74
 %global fedora_build %{baserelease}
 
 # base_sublevel is the kernel version we're starting with and patching
@@ -42,7 +42,7 @@ Summary: The Linux kernel
 %if 0%{?released_kernel}
 
 # Do we have a -stable update to apply?
-%define stable_update 75
+%define stable_update 80
 # Set rpm version accordingly
 %if 0%{?stable_update}
 %define stablerev %{stable_update}
@@ -409,7 +409,7 @@ Patch26130: acpi-video-Add-disable_native_backlight-quirk-for-De.patch
 
 Patch80000: fix-backports-dir.patch
 Patch80001: odroid-c-dts-fix-side-effect-issue-due-to-cec-change.patch
-Patch80002: odroid-c-cec-fix-to-supply-odroid-specific-strings.patch
+Patch80002: ODROID-C1-Fix-null-pointer-dereference-in-ethernet-c.patch
 Patch80003: amlogic-expose-cec-phy-address-over-sysfs.patch
 Patch80004: amlogic-use-millicelsius-for-system-temperature.patch
 Patch80005: amlogic-default-debug-level-to-err.patch
@@ -1088,7 +1088,7 @@ ApplyPatch acpi-video-Add-disable_native_backlight-quirk-for-De.patch
 
 ApplyPatch fix-backports-dir.patch
 ApplyPatch odroid-c-dts-fix-side-effect-issue-due-to-cec-change.patch
-ApplyPatch odroid-c-cec-fix-to-supply-odroid-specific-strings.patch
+ApplyPatch ODROID-C1-Fix-null-pointer-dereference-in-ethernet-c.patch
 ApplyPatch amlogic-expose-cec-phy-address-over-sysfs.patch
 ApplyPatch amlogic-use-millicelsius-for-system-temperature.patch
 ApplyPatch amlogic-default-debug-level-to-err.patch
@@ -1878,6 +1878,9 @@ fi
 #                                    ||----w |
 #                                    ||     ||
 %changelog
+* Tue Dec 01 2015 Scott K Logan <logans@cottsay.net> - 3.10.80-74
+- Update to version 3.10.80-74
+
 * Sat May 02 2015 Scott K Logan <logans@cottsay.net> - 3.10.75-1
 - Adapted kernel RPM from Fedora's kernel-3.18.5-201
 ###

@@ -17,7 +17,7 @@ index efe382b..139b8aca 100755
 @@ -613,7 +613,6 @@
              vendor_id = <0x000000>;                 /* Refer to http://standards.ieee.org/develop/regauth/oui/oui.txt   */
              product_desc = "ODROID-C1";        /* Max Chars: 16    */
-             cec_osd_string = "ODROID";        /* Max Chars: 14    */
+             cec_osd_string = "ODROID-C1";        /* Max Chars: 14    */
 -            cec_config = <0x00000f>;
              ao_cec = <0x000001>;
          };
@@ -28,7 +28,7 @@ index 4fdd757..9c92b74 100755
 +++ b/arch/arm/mach-meson8b/pm.c
 @@ -479,13 +479,8 @@ static int __init meson_pm_probe(struct platform_device *pdev)
  	clkxtal = clk_get_sys("xtal", NULL);
- 	
+	
  	cec_np = of_find_node_by_name(NULL, "vend_data");
 -	if(cec_np){
 -	    if(of_property_read_u32(cec_np, "cec_config", &cec_config))
@@ -40,8 +40,8 @@ index 4fdd757..9c92b74 100755
 +	if (!cec_np || of_property_read_u32(cec_np, "cec_config", &cec_config)) {
 +	    cec_config = aml_read_reg32(P_AO_DEBUG_REG0);
  	}
-     printk("hdmi: cec_pm: cec config:0x%x\n", cec_config);
-     
+ 
+ #ifdef CONFIG_AO_TRIG_CLK
 diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx.c
 index 276fd41..931fc4a 100755
 --- a/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx.c

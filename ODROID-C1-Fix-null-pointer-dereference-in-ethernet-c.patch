@@ -1,12 +1,12 @@
-From 4445fc137054b5392991666d42241e5159afad0b Mon Sep 17 00:00:00 2001
+From aacf12692514c2f4187929005cf8986f1820d0c1 Mon Sep 17 00:00:00 2001
 From: Scott K Logan <logans@cottsay.net>
 Date: Tue, 1 Dec 2015 02:45:17 -0800
 Subject: [PATCH] ODROID-C1: Fix null pointer dereference in ethernet code
 
 ---
  drivers/amlogic/efuse/efuse.c         | 28 +++++++++++++++++-----------
- drivers/amlogic/ethernet/am_net8218.c | 10 +++++++---
- 2 files changed, 24 insertions(+), 14 deletions(-)
+ drivers/amlogic/ethernet/am_net8218.c | 11 +++++++++--
+ 2 files changed, 26 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/amlogic/efuse/efuse.c b/drivers/amlogic/efuse/efuse.c
 index a29a742..1d5fe67 100644
@@ -85,7 +85,7 @@ index a29a742..1d5fe67 100644
  
  static ssize_t mac_wifi_show(struct class *cla, struct class_attribute *attr, char *buf)
 diff --git a/drivers/amlogic/ethernet/am_net8218.c b/drivers/amlogic/ethernet/am_net8218.c
-index c39df30..1a29f7d 100644
+index c39df30..ce3f20d 100644
 --- a/drivers/amlogic/ethernet/am_net8218.c
 +++ b/drivers/amlogic/ethernet/am_net8218.c
 @@ -117,7 +117,7 @@ static int reset_mac(struct net_device *dev);
@@ -97,19 +97,20 @@ index c39df30..1a29f7d 100644
  
  /* --------------------------------------------------------------------------*/
  /**
-@@ -1351,10 +1351,14 @@ static void config_mac_addr(struct net_device *dev, void *mac)
- static void mac_from_efuse_to_DEFMAC(void)
+@@ -1352,9 +1352,16 @@ static void mac_from_efuse_to_DEFMAC(void)
  {
  	unsigned char mac[6];
--	unsigned char *efuse_mac;
-+	unsigned char efuse_mac[20];
+ 	unsigned char *efuse_mac;
++	unsigned char hwaddr[20];
  	int i;
  	
 -	efuse_mac = aml_efuse_get_item("mac");
-+	if (aml_efuse_get_item("mac", efuse_mac) < 0)
++	if (aml_efuse_get_item("mac", hwaddr) < 0)
 +        {
 +		return;
 +        }
++
++	efuse_mac = hwaddr;
 +
  	for (i = 0; i < 6 && efuse_mac[0] != '\0' && efuse_mac[1] != '\0'; i++) {
  		mac[i] = chartonum(efuse_mac[0]) << 4 | chartonum(efuse_mac[1]);

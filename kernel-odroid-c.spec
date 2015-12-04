@@ -30,7 +30,7 @@ Summary: The Linux kernel
 # For non-released -rc kernels, this will be appended after the rcX and
 # gitX tags, so a 3 here would become part of release "0.rcX.gitX.3"
 #
-%global baserelease 74
+%global baserelease 74.1
 %global fedora_build %{baserelease}
 
 # base_sublevel is the kernel version we're starting with and patching
@@ -423,6 +423,8 @@ Patch80012: amlogic-always-reply-to-set-stream-path-cec-message.patch
 Patch80013: amlogic-get-tv-vendor-id-on-cec-startup.patch
 Patch80014: amlogic-record-device-vendor-ids.patch
 Patch80015: arm-LLVMLinux-use-static-inline-in-arm-ftrace-h.patch
+Patch80016: ODROID-C1-Fix-umplock-makefile.patch
+Patch80017: ODROID-C1-Make-HDMI-messages-less-noisy.patch
 
 # END OF PATCH DEFINITIONS
 
@@ -1102,6 +1104,8 @@ ApplyPatch amlogic-always-reply-to-set-stream-path-cec-message.patch
 ApplyPatch amlogic-get-tv-vendor-id-on-cec-startup.patch
 ApplyPatch amlogic-record-device-vendor-ids.patch
 ApplyPatch arm-LLVMLinux-use-static-inline-in-arm-ftrace-h.patch
+ApplyPatch ODROID-C1-Fix-umplock-makefile.patch
+ApplyPatch ODROID-C1-Make-HDMI-messages-less-noisy.patch
 
 # END OF PATCH APPLICATIONS
 
@@ -1878,6 +1882,10 @@ fi
 #                                    ||----w |
 #                                    ||     ||
 %changelog
+* Thu Dec 03 2015 Scott K Logan <logans@cottsay.net> - 3.10.80-74.1
+- Add patch to fix umplock
+- Add patch to quiet HDMI messages
+
 * Tue Dec 01 2015 Scott K Logan <logans@cottsay.net> - 3.10.80-74
 - Update to version 3.10.80-74
 

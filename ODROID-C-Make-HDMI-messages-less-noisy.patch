@@ -1,7 +1,7 @@
-From da67e55f01129ce973abeea6e94d294340cfc524 Mon Sep 17 00:00:00 2001
+From ccbbb4426bafda2f6605811983c0c56d00882a6c Mon Sep 17 00:00:00 2001
 From: Scott K Logan <logans@cottsay.net>
 Date: Thu, 3 Dec 2015 22:00:58 -0800
-Subject: [PATCH] ODROID-C1: Make HDMI messages less noisy
+Subject: [PATCH 3/6] ODROID-C: Make HDMI messages less noisy
 
 ---
  drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_video.c | 22 +++++++++++-----------

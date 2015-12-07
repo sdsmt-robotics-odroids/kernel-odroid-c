@@ -30,7 +30,7 @@ Summary: The Linux kernel
 # For non-released -rc kernels, this will be appended after the rcX and
 # gitX tags, so a 3 here would become part of release "0.rcX.gitX.3"
 #
-%global baserelease 74.1
+%global baserelease 74.2
 %global fedora_build %{baserelease}
 
 # base_sublevel is the kernel version we're starting with and patching
@@ -409,7 +409,7 @@ Patch26130: acpi-video-Add-disable_native_backlight-quirk-for-De.patch
 
 Patch80000: fix-backports-dir.patch
 Patch80001: odroid-c-dts-fix-side-effect-issue-due-to-cec-change.patch
-Patch80002: ODROID-C1-Fix-null-pointer-dereference-in-ethernet-c.patch
+Patch80002: ODROID-C-Fix-null-pointer-dereference-in-ethernet-co.patch
 Patch80003: amlogic-expose-cec-phy-address-over-sysfs.patch
 Patch80004: amlogic-use-millicelsius-for-system-temperature.patch
 Patch80005: amlogic-default-debug-level-to-err.patch
@@ -423,8 +423,12 @@ Patch80012: amlogic-always-reply-to-set-stream-path-cec-message.patch
 Patch80013: amlogic-get-tv-vendor-id-on-cec-startup.patch
 Patch80014: amlogic-record-device-vendor-ids.patch
 Patch80015: arm-LLVMLinux-use-static-inline-in-arm-ftrace-h.patch
-Patch80016: ODROID-C1-Fix-umplock-makefile.patch
-Patch80017: ODROID-C1-Make-HDMI-messages-less-noisy.patch
+Patch80016: ODROID-C-Fix-umplock-makefile.patch
+Patch80017: ODROID-C-Make-HDMI-messages-less-noisy.patch
+Patch80018: ODROID-C-Fix-null-pointer-dereference-in-framerate-a.patch
+Patch80019: ODROID-C-Do-not-return-success-from-probe-if-DAC-is-.patch
+Patch80020: ODROID-C-Quiet-some-more-rowdy-kernel-messages.patch
+Patch80021: ODROID-C-Populate-system-revision-serial-from-efuse.patch
 
 # END OF PATCH DEFINITIONS
 
@@ -1090,7 +1094,7 @@ ApplyPatch acpi-video-Add-disable_native_backlight-quirk-for-De.patch
 
 ApplyPatch fix-backports-dir.patch
 ApplyPatch odroid-c-dts-fix-side-effect-issue-due-to-cec-change.patch
-ApplyPatch ODROID-C1-Fix-null-pointer-dereference-in-ethernet-c.patch
+ApplyPatch ODROID-C-Fix-null-pointer-dereference-in-ethernet-co.patch
 ApplyPatch amlogic-expose-cec-phy-address-over-sysfs.patch
 ApplyPatch amlogic-use-millicelsius-for-system-temperature.patch
 ApplyPatch amlogic-default-debug-level-to-err.patch
@@ -1104,8 +1108,12 @@ ApplyPatch amlogic-always-reply-to-set-stream-path-cec-message.patch
 ApplyPatch amlogic-get-tv-vendor-id-on-cec-startup.patch
 ApplyPatch amlogic-record-device-vendor-ids.patch
 ApplyPatch arm-LLVMLinux-use-static-inline-in-arm-ftrace-h.patch
-ApplyPatch ODROID-C1-Fix-umplock-makefile.patch
-ApplyPatch ODROID-C1-Make-HDMI-messages-less-noisy.patch
+ApplyPatch ODROID-C-Fix-umplock-makefile.patch
+ApplyPatch ODROID-C-Make-HDMI-messages-less-noisy.patch
+ApplyPatch ODROID-C-Fix-null-pointer-dereference-in-framerate-a.patch
+ApplyPatch ODROID-C-Do-not-return-success-from-probe-if-DAC-is-.patch
+ApplyPatch ODROID-C-Quiet-some-more-rowdy-kernel-messages.patch
+ApplyPatch ODROID-C-Populate-system-revision-serial-from-efuse.patch
 
 # END OF PATCH APPLICATIONS
 
@@ -1882,6 +1890,9 @@ fi
 #                                    ||----w |
 #                                    ||     ||
 %changelog
+* Sun Dec 07 2015 Scott K Logan <logans@cottsay.net> - 3.10.80-74.2
+- Add various bugfix patches
+
 * Thu Dec 03 2015 Scott K Logan <logans@cottsay.net> - 3.10.80-74.1
 - Add patch to fix umplock
 - Add patch to quiet HDMI messages

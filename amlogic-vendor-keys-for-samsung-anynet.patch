@@ -1,4 +1,4 @@
-From 488feb34e814350829b59ac3cac8931d04faa8d9 Mon Sep 17 00:00:00 2001
+From 874536b5a3956fd930bbe169bea760f3002c75c8 Mon Sep 17 00:00:00 2001
 From: Scott K Logan <logans@cottsay.net>
 Date: Sun, 1 Mar 2015 07:56:40 -0800
 Subject: [PATCH] amlogic: Vendor keys for Samsung Anynet+
@@ -11,7 +11,7 @@ Subject: [PATCH] amlogic: Vendor keys for Samsung Anynet+
  4 files changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c
-index d83b9a4..74ec4c5 100644
+index 93ac52f..241d11c 100644
 --- a/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c
 +++ b/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c
 @@ -54,6 +54,10 @@ __u16 cec_key_map[256] = {
@@ -24,7 +24,7 @@ index d83b9a4..74ec4c5 100644
 +    0 , 0, 0, 0, 0, 0, 0, 0,
  };
  
- static __u16 last_key = 0;
+ void cec_send_event(cec_rx_message_t* pcec_message)
 diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c
 index 13b9fe8..a3a8c9e 100644
 --- a/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c
@@ -51,10 +51,10 @@ index 13b9fe8..a3a8c9e 100644
              default:
                  break;
 diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c
-index 833e7188..5bc2ab3 100644
+index 17a0a14..7ee0951 100755
 --- a/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c
 +++ b/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c
-@@ -462,7 +462,7 @@ void cec_input_handle_message(void)
+@@ -454,7 +454,7 @@ void cec_input_handle_message(void)
                  initiator = cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].content.msg.header & 0xf0;
                  if(opernum > 15 || follower == 0xf) break;
              }
@@ -63,7 +63,7 @@ index 833e7188..5bc2ab3 100644
              break;
          case CEC_OC_VENDOR_REMOTE_BUTTON_UP:
              // check valid msg
-@@ -473,7 +473,7 @@ void cec_input_handle_message(void)
+@@ -465,7 +465,7 @@ void cec_input_handle_message(void)
                  follower = cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].content.msg.header & 0x0f;
                  if(opernum != 0 || follower == 0xf) break;
              }
@@ -73,10 +73,10 @@ index 833e7188..5bc2ab3 100644
          default:
              break;
 diff --git a/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h b/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h
-index 595bf4e3..9beb12e 100644
+index f336239..f5364e6 100644
 --- a/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h
 +++ b/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h
-@@ -497,6 +497,7 @@ typedef enum {
+@@ -498,6 +498,7 @@ typedef enum {
  
  typedef enum {
      CEC_VENDOR_UNKNOWN = 0,
@@ -84,3 +84,6 @@ index 595bf4e3..9beb12e 100644
  } cec_vendor_id_e;
  
  void cec_enable_irq(void);
+-- 
+2.5.5
+

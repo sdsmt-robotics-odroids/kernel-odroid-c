@@ -1,4 +1,4 @@
-From c9c240f6d68d73ec3813591af8d11d43583c5892 Mon Sep 17 00:00:00 2001
+From 47fafaccd6e83a4fb809b60075396f6d08b37dea Mon Sep 17 00:00:00 2001
 From: Scott K Logan <logans@cottsay.net>
 Date: Sun, 1 Mar 2015 06:32:44 -0800
 Subject: [PATCH] amlogic: Fix possible segfault in keymap
@@ -9,7 +9,7 @@ Subject: [PATCH] amlogic: Fix possible segfault in keymap
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c
-index e4c710a..d83b9a4 100644
+index 2a8b470..93ac52f 100644
 --- a/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c
 +++ b/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c
 @@ -36,7 +36,7 @@
@@ -21,3 +21,6 @@ index e4c710a..d83b9a4 100644
      KEY_ENTER, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, 0 , 0 , 0 ,//0x00
      0 , KEY_HOMEPAGE , KEY_MENU, 0, 0, KEY_BACK, 0, 0,
      0 , 0, 0, 0, 0, 0, 0, 0,//0x10
+-- 
+2.5.5
+

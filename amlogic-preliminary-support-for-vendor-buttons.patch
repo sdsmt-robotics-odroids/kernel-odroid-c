@@ -1,27 +1,54 @@
-From b0c84b14f3b156ed41c46e73bfa26c4c2c3f05ad Mon Sep 17 00:00:00 2001
+From 2df4ccbb5fd0ea6b80c5e1b175386f8952718756 Mon Sep 17 00:00:00 2001
 From: Scott K Logan <logans@cottsay.net>
 Date: Sat, 2 May 2015 21:34:42 -0700
 Subject: [PATCH] amlogic: Preliminary support for vendor buttons
 
 ---
  drivers/amlogic/hdmi/hdmi_tx/Makefile          |  2 +-
- drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c | 34 ++++++++++++++++++++++++++
- drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c     | 30 +++++++++++++++++++++--
- include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h    |  7 ++++++
- 4 files changed, 70 insertions(+), 3 deletions(-)
+ drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c    |  6 +---
+ drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c | 34 ++++++++++++++++++
+ drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c     | 50 ++++++++++++++------------
+ include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h    |  7 ++++
+ 5 files changed, 71 insertions(+), 28 deletions(-)
  create mode 100644 drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c
 
 diff --git a/drivers/amlogic/hdmi/hdmi_tx/Makefile b/drivers/amlogic/hdmi/hdmi_tx/Makefile
-index 5d423d0..22cb720 100755
+index 45b2d14..235ec92 100755
 --- a/drivers/amlogic/hdmi/hdmi_tx/Makefile
 +++ b/drivers/amlogic/hdmi/hdmi_tx/Makefile
-@@ -1,5 +1,5 @@
- obj-$(CONFIG_AML_HDMI_TX)		+= hdmitx.o
- 
--hdmitx-objs := hdmi_tx.o hdmi_tx_cec.o hdmi_cec_key.o hdmi_tx_video.o hdmi_tx_audio.o hdmi_tx_edid.o hdmi_tx_audio.o hdmi_tx_hdcp.o
-+hdmitx-objs := hdmi_tx.o hdmi_tx_cec.o hdmi_cec_key.o hdmi_tx_video.o hdmi_tx_audio.o hdmi_tx_edid.o hdmi_tx_audio.o hdmi_tx_hdcp.o hdmi_cec_vendor.o
+@@ -5,7 +5,7 @@ hdmitx-objs := hdmi_tx.o hdmi_tx_video.o hdmi_tx_audio.o hdmi_tx_edid.o hdmi_tx_
+ ifdef CONFIG_AML_HDMI_TX_NEW_CEC_DRIVER
+   hdmitx-objs += amlogic_cec.o
+ else
+-  hdmitx-objs += hdmi_tx_cec.o hdmi_cec_key.o
++  hdmitx-objs += hdmi_tx_cec.o hdmi_cec_key.o hdmi_cec_vendor.o
+ endif
  
  #EXTRA_CFLAGS += -O2
+diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c
+index da1d076..2a8b470 100644
+--- a/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c
++++ b/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_key.c
+@@ -36,7 +36,7 @@
+ #include <linux/amlogic/hdmi_tx/hdmi_tx_cec.h>
+ hdmitx_dev_t *hdmitx_device = NULL;
+ 
+-__u16 cec_key_map[160] = {
++__u16 cec_key_map[128] = {
+     KEY_ENTER, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, 0 , 0 , 0 ,//0x00
+     0 , KEY_HOMEPAGE , KEY_MENU, 0, 0, KEY_BACK, 0, 0,
+     0 , 0, 0, 0, 0, 0, 0, 0,//0x10
+@@ -54,10 +54,6 @@ __u16 cec_key_map[160] = {
+     0 , KEY_MEDIA, 0, 0, KEY_POWER, 0, 0, 0,
+     0 , KEY_BLUE, KEY_RED, KEY_GREEN, KEY_YELLOW, 0, 0, 0,//0x70
+     0 , 0, 0, 0, 0, 0, 0, 0x2fd,
+-    0 , 0, 0, 0, 0, 0, 0, 0,//0x80
+-    0 , 0, 0, 0, 0, 0, 0, 0,
+-    0 , KEY_EXIT, 0, 0, 0, 0, KEY_PVR, 0,//0x90  //samsung vendor buttons return and channel_list
+-    0 , 0, 0, 0, 0, 0, 0, 0,
+ };
+ 
+ void cec_send_event(cec_rx_message_t* pcec_message)
 diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_cec_vendor.c
 new file mode 100644
 index 0000000..13b9fe8
@@ -63,10 +90,10 @@ index 0000000..13b9fe8
 +}
 +
 diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c
-index 88fdb51..ffb3505 100755
+index f571393..17a0a14 100755
 --- a/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c
 +++ b/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_cec.c
-@@ -437,6 +437,30 @@ void cec_input_handle_message(void)
+@@ -443,6 +443,30 @@ void cec_input_handle_message(void)
              }
              cec_user_control_pressed_irq();
              break;
@@ -97,7 +124,7 @@ index 88fdb51..ffb3505 100755
          default:
              break;
          }
-@@ -1181,6 +1205,10 @@ void cec_handle_message(cec_rx_message_t* pcec_message)
+@@ -1188,6 +1212,10 @@ void cec_handle_message(cec_rx_message_t* pcec_message)
              break;
          case CEC_OC_USER_CONTROL_RELEASED:
              break;
@@ -108,20 +135,40 @@ index 88fdb51..ffb3505 100755
          case CEC_OC_IMAGE_VIEW_ON:      //not support in source
              cec_usrcmd_set_imageview_on( CEC_TV_ADDR );   // Wakeup TV
              break;
-@@ -1229,8 +1257,6 @@ void cec_handle_message(cec_rx_message_t* pcec_message)
-             }
-             break;
+@@ -1245,28 +1273,6 @@ void cec_handle_message(cec_rx_message_t* pcec_message)
+ 	    }
+ 	    break;
          case CEC_OC_GET_MENU_LANGUAGE:
--        case CEC_OC_VENDOR_REMOTE_BUTTON_DOWN:
 -        case CEC_OC_VENDOR_REMOTE_BUTTON_UP:
+-        case CEC_OC_VENDOR_REMOTE_BUTTON_DOWN:
+-            hdmi_print(INF, CEC "CEC_OC_VENDOR_REMOTE_BUTTON_DOWN:0x%x\n",pcec_message->content.msg.operands[0]);
+-            switch(pcec_message->content.msg.operands[0]){
+-                case 0x91:
+-                    input_event(cec_global_info.remote_cec_dev, EV_KEY, KEY_EXIT, 1);
+-                    input_sync(cec_global_info.remote_cec_dev);
+-                    input_event(cec_global_info.remote_cec_dev, EV_KEY, KEY_EXIT, 0);
+-                    input_sync(cec_global_info.remote_cec_dev);
+-                    hdmi_print(INF, CEC  ":key map:%d\n",KEY_EXIT);
+-                    break;
+-                case 0x96:
+-                    input_event(cec_global_info.remote_cec_dev, EV_KEY, KEY_LIST, 1);
+-                    input_sync(cec_global_info.remote_cec_dev);
+-                    input_event(cec_global_info.remote_cec_dev, EV_KEY, KEY_LIST, 0);
+-                    input_sync(cec_global_info.remote_cec_dev);
+-                    hdmi_print(INF, CEC  ":key map:%d\n",KEY_LIST);
+-                    break;
+-                default:
+-                    break;
+-            }
+-            break;
          case CEC_OC_CLEAR_ANALOGUE_TIMER:
          case CEC_OC_CLEAR_DIGITAL_TIMER:
          case CEC_OC_CLEAR_EXTERNAL_TIMER:
 diff --git a/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h b/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h
-index 51a7190..595bf4e 100644
+index 4fa6f29..f336239 100644
 --- a/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h
 +++ b/include/linux/amlogic/hdmi_tx/hdmi_tx_cec.h
-@@ -495,6 +495,10 @@ typedef enum {
+@@ -496,6 +496,10 @@ typedef enum {
      DEVICE_MENU_INACTIVE,    
  } cec_device_menu_state_e;
  
@@ -132,7 +179,7 @@ index 51a7190..595bf4e 100644
  void cec_enable_irq(void);
  void cec_disable_irq(void);
  
-@@ -603,5 +607,8 @@ extern void cec_key_init(void);
+@@ -606,5 +610,8 @@ extern void cec_key_init(void);
  extern __u16 cec_key_map[];
  extern cec_global_info_t cec_global_info;
  
@@ -142,5 +189,5 @@ index 51a7190..595bf4e 100644
  #endif
  
 -- 
-2.1.0
+2.5.5
 

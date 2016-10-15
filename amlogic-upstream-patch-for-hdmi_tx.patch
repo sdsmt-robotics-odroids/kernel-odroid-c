@@ -1,19 +1,17 @@
-From e16119a311fa2a0ccb4af3ac8f074706616a2368 Mon Sep 17 00:00:00 2001
+From e2ccb5c1d30d4e747723fb9ab5839416620806d7 Mon Sep 17 00:00:00 2001
 From: Scott K Logan <logans@cottsay.net>
 Date: Sun, 1 Mar 2015 04:08:03 -0800
 Subject: [PATCH] amlogic: Upstream patch for hdmi_tx
 
 ---
- arch/arm/boot/dts/amlogic/meson8b_odroidc.dtd    |  10 +-
- arch/arm/mach-meson8/hdmi_tx_hw/hdmi_tx_hw.c     | 288 +++++++++++++++++------
- arch/arm/mach-meson8b/hdmi_tx_hw/hdmi_tx_hw.c    | 171 ++++++++++++--
- arch/arm/mach-meson8b/include/mach/hdmi_tx_reg.h |   3 +
- drivers/amlogic/hdmi/hdmi_tx/hdmi_tx.c           |   4 +-
- drivers/amlogic/hdmi/hdmi_tx/hdmi_tx_edid.c      |  21 ++
- 6 files changed, 410 insertions(+), 87 deletions(-)
+ arch/arm/boot/dts/amlogic/meson8b_odroidc.dtd |  10 +-
+ arch/arm/mach-meson8/hdmi_tx_hw/hdmi_tx_hw.c  | 223 ++++++++++++++++++--------
+ arch/arm/mach-meson8b/hdmi_tx_hw/hdmi_tx_hw.c |  64 ++++++++
+ drivers/amlogic/hdmi/hdmi_tx/hdmi_tx.c        |   4 +-
+ 4 files changed, 231 insertions(+), 70 deletions(-)
 
 diff --git a/arch/arm/boot/dts/amlogic/meson8b_odroidc.dtd b/arch/arm/boot/dts/amlogic/meson8b_odroidc.dtd
-index 21c97d0..3870828 100755
+index 3148810..de0b16f 100755
 --- a/arch/arm/boot/dts/amlogic/meson8b_odroidc.dtd
 +++ b/arch/arm/boot/dts/amlogic/meson8b_odroidc.dtd
 @@ -986,11 +986,15 @@ void root_func(){
@@ -36,7 +34,7 @@ index 21c97d0..3870828 100755
  
  //$$ MATCH "HDMI_pwr-ctrl_match" = <&pwr_ctrl>
 diff --git a/arch/arm/mach-meson8/hdmi_tx_hw/hdmi_tx_hw.c b/arch/arm/mach-meson8/hdmi_tx_hw/hdmi_tx_hw.c
-index 2e8efc0..fc33464 100644
+index 656af38..fc33464 100644
 --- a/arch/arm/mach-meson8/hdmi_tx_hw/hdmi_tx_hw.c
 +++ b/arch/arm/mach-meson8/hdmi_tx_hw/hdmi_tx_hw.c
 @@ -109,6 +109,79 @@ static unsigned char use_tvenc_conf_flag=1;
@@ -220,7 +218,7 @@ index 2e8efc0..fc33464 100644
      hdmi_phy_suspend();
      //todo
      aml_set_reg32_bits(P_PERIPHS_PIN_MUX_1, 0xf, 23, 4); //Enable reg1[23:24]:HDMI SDA(5v)/SCL(5V)
-@@ -1971,8 +2114,8 @@ static void hdmitx_set_phy(hdmitx_dev_t* hdmitx_device)
+@@ -2035,8 +2114,8 @@ static void hdmitx_set_phy(hdmitx_dev_t* hdmitx_device)
      aml_write_reg32(P_HHI_HDMI_PHY_CNTL1, 2);   \
      msleep(1)
  
@@ -231,7 +229,7 @@ index 2e8efc0..fc33464 100644
      RESET_HDMI_PHY();
      RESET_HDMI_PHY();
      RESET_HDMI_PHY();
-@@ -1983,6 +2126,7 @@ static void hdmitx_set_phy(hdmitx_dev_t* hdmitx_device)
+@@ -2047,6 +2126,7 @@ static void hdmitx_set_phy(hdmitx_dev_t* hdmitx_device)
  static int hdmitx_set_dispmode(hdmitx_dev_t* hdmitx_device, Hdmi_tx_video_para_t *param)
  {
      if(param == NULL){ //disable HDMI
@@ -239,7 +237,7 @@ index 2e8efc0..fc33464 100644
          return 0;
      }
      else {
-@@ -1998,15 +2142,16 @@ static int hdmitx_set_dispmode(hdmitx_dev_t* hdmitx_device, Hdmi_tx_video_para_t
+@@ -2062,15 +2142,16 @@ static int hdmitx_set_dispmode(hdmitx_dev_t* hdmitx_device, Hdmi_tx_video_para_t
          param->color_depth = COLOR_36BIT;
      else if(color_depth_f==48)
          param->color_depth = COLOR_48BIT;
@@ -259,7 +257,7 @@ index 2e8efc0..fc33464 100644
      if((param->VIC==HDMI_720p60)||(param->VIC==HDMI_720p50)||
          (param->VIC==HDMI_1080i60)||(param->VIC==HDMI_1080i50)){
          aml_write_reg32(P_ENCP_VIDEO_HAVON_BEGIN,  aml_read_reg32(P_ENCP_VIDEO_HAVON_BEGIN)-1);     
-@@ -2041,35 +2186,35 @@ static int hdmitx_set_dispmode(hdmitx_dev_t* hdmitx_device, Hdmi_tx_video_para_t
+@@ -2105,35 +2186,35 @@ static int hdmitx_set_dispmode(hdmitx_dev_t* hdmitx_device, Hdmi_tx_video_para_t
  
      // reset TX_SYS5_TX_SOFT_RESET_1/2 twice
      hdmi_wr_reg(TX_SYS5_TX_SOFT_RESET_1, 0xff);
@@ -314,7 +312,7 @@ index 2e8efc0..fc33464 100644
  
      return 0;
  }
-@@ -2263,7 +2408,7 @@ static Cts_conf_tab cts_table_192k[] = {
+@@ -2327,7 +2408,7 @@ static Cts_conf_tab cts_table_192k[] = {
      {24576, 108000, 108000},
      {24576,  74250,  74250},
      {24576, 148500, 148500},
@@ -323,7 +321,7 @@ index 2e8efc0..fc33464 100644
  };
  
  static unsigned int get_cts(unsigned int clk)
-@@ -2303,10 +2448,10 @@ static Vic_attr_map vic_attr_map_table[] = {
+@@ -2367,10 +2448,10 @@ static Vic_attr_map vic_attr_map_table[] = {
      {HDMI_1080p30,          74250 },
      {HDMI_480p60_16x9_rpt,  108000},
      {HDMI_576p50_16x9_rpt,  108000},
@@ -338,7 +336,7 @@ index 2e8efc0..fc33464 100644
  };
  
  static unsigned int vic_map_clk(HDMI_Video_Codes_t vic)
-@@ -2435,9 +2580,15 @@ static int hdmitx_set_audmode(struct hdmi_tx_dev_s* hdmitx_device, Hdmi_tx_audio
+@@ -2499,9 +2580,15 @@ static int hdmitx_set_audmode(struct hdmi_tx_dev_s* hdmitx_device, Hdmi_tx_audio
          break;
      }
  
@@ -357,7 +355,7 @@ index 2e8efc0..fc33464 100644
      hdmi_print(INF, AUD "set audio N para\n");
  
      hdmitx_set_aud_pkt_type(audio_param->type);
-@@ -3130,6 +3282,7 @@ static int hdmitx_cntl_ddc(hdmitx_dev_t* hdmitx_device, unsigned cmd, unsigned a
+@@ -3195,6 +3282,7 @@ static int hdmitx_cntl_ddc(hdmitx_dev_t* hdmitx_device, unsigned cmd, unsigned a
  
      switch(cmd) {
      case DDC_RESET_EDID:
@@ -365,7 +363,7 @@ index 2e8efc0..fc33464 100644
          hdmi_set_reg_bits(TX_HDCP_EDID_CONFIG, 0, 6, 1);
          hdmi_set_reg_bits(TX_SYS5_TX_SOFT_RESET_2, 1, 1, 1);
          hdmi_set_reg_bits(TX_SYS5_TX_SOFT_RESET_2, 0, 1, 1);
-@@ -3142,6 +3295,7 @@ static int hdmitx_cntl_ddc(hdmitx_dev_t* hdmitx_device, unsigned cmd, unsigned a
+@@ -3207,6 +3295,7 @@ static int hdmitx_cntl_ddc(hdmitx_dev_t* hdmitx_device, unsigned cmd, unsigned a
          break;
      case DDC_EDID_GET_DATA:
          hdmitx_getediddata(hdmitx_device, argv);
@@ -373,7 +371,7 @@ index 2e8efc0..fc33464 100644
          break;
      case DDC_PIN_MUX_OP:
          if(argv == PIN_MUX) {
-@@ -3162,6 +3316,7 @@ static int hdmitx_cntl_ddc(hdmitx_dev_t* hdmitx_device, unsigned cmd, unsigned a
+@@ -3227,6 +3316,7 @@ static int hdmitx_cntl_ddc(hdmitx_dev_t* hdmitx_device, unsigned cmd, unsigned a
          break;
      case DDC_HDCP_OP:
          if(argv == HDCP_ON) {
@@ -381,7 +379,7 @@ index 2e8efc0..fc33464 100644
  #ifdef CONFIG_AML_HDMI_TX_HDCP
              // check if bit7 is enable, if not, enable first
              if(hdmi_rd_reg(TX_PACKET_CONTROL_1) & (1 << 7)) {
-@@ -3174,6 +3329,7 @@ static int hdmitx_cntl_ddc(hdmitx_dev_t* hdmitx_device, unsigned cmd, unsigned a
+@@ -3239,6 +3329,7 @@ static int hdmitx_cntl_ddc(hdmitx_dev_t* hdmitx_device, unsigned cmd, unsigned a
              hdmi_set_reg_bits(TX_HDCP_MODE, 1, 7, 1);
          }
          if(argv == HDCP_OFF) {
@@ -390,10 +388,10 @@ index 2e8efc0..fc33464 100644
          }
          break;
 diff --git a/arch/arm/mach-meson8b/hdmi_tx_hw/hdmi_tx_hw.c b/arch/arm/mach-meson8b/hdmi_tx_hw/hdmi_tx_hw.c
-index e21b17f..cd82982 100755
+index a67a5fa..7d27754 100755
 --- a/arch/arm/mach-meson8b/hdmi_tx_hw/hdmi_tx_hw.c
 +++ b/arch/arm/mach-meson8b/hdmi_tx_hw/hdmi_tx_hw.c
-@@ -1978,12 +1982,76 @@ static void hdmitx_config_tvenc_reg(int vic, unsigned reg, unsigned val)
+@@ -1982,12 +1982,76 @@ static void hdmitx_config_tvenc_reg(int vic, unsigned reg, unsigned val)
      }
  }
  
@@ -451,7 +449,7 @@ index e21b17f..cd82982 100755
 +		ret = 1;
 +	}
 +
-+	return ret;		
++	return ret;
 +}
 +#endif
 +
@@ -471,7 +469,7 @@ index e21b17f..cd82982 100755
      {
          case HDMI_480p60:
 diff --git a/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx.c b/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx.c
-index 39fed22..276fd41 100755
+index fab657c..ab24b18 100755
 --- a/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx.c
 +++ b/drivers/amlogic/hdmi/hdmi_tx/hdmi_tx.c
 @@ -63,6 +63,9 @@ static int set_disp_mode_auto(void);
@@ -484,7 +482,7 @@ index 39fed22..276fd41 100755
  
  static hdmitx_dev_t hdmitx_device;
  static struct switch_dev sdev = {      // android ics switch device
-@@ -396,7 +399,6 @@ static int set_disp_mode_auto(void)
+@@ -395,7 +398,6 @@ static int set_disp_mode_auto(void)
      else {
          hdmi_print(IMP, VID "get current mode: %s\n", info->name);
      }
@@ -493,5 +491,5 @@ index 39fed22..276fd41 100755
      if((strncmp(info->name, "480cvbs", 7) == 0) || (strncmp(info->name, "576cvbs", 7) == 0) ||
         (strncmp(info->name, "panel", 5) == 0) || (strncmp(info->name, "null", 4) == 0)) {
 -- 
-2.1.0
+2.5.5
 

@@ -1,4 +1,4 @@
-%global commit 98b7d2c2c9da3d43d42adce240edef98c3c50a43
+%global commit 51872c9839236f3d78dae07314b53f45e6ce4e0d
 %define variant -odroid-c
 %define _without_pae 1
 
@@ -30,7 +30,7 @@ Summary: The Linux kernel
 # For non-released -rc kernels, this will be appended after the rcX and
 # gitX tags, so a 3 here would become part of release "0.rcX.gitX.3"
 #
-%global baserelease 74.2
+%global baserelease 11
 %global fedora_build %{baserelease}
 
 # base_sublevel is the kernel version we're starting with and patching
@@ -42,7 +42,7 @@ Summary: The Linux kernel
 %if 0%{?released_kernel}
 
 # Do we have a -stable update to apply?
-%define stable_update 80
+%define stable_update 103
 # Set rpm version accordingly
 %if 0%{?stable_update}
 %define stablerev %{stable_update}
@@ -407,9 +407,7 @@ Patch26121: Set-UID-in-sess_auth_rawntlmssp_authenticate-too.patch
 #rhbz 1163574
 Patch26130: acpi-video-Add-disable_native_backlight-quirk-for-De.patch
 
-Patch80000: fix-backports-dir.patch
 Patch80001: odroid-c-dts-fix-side-effect-issue-due-to-cec-change.patch
-Patch80002: ODROID-C-Fix-null-pointer-dereference-in-ethernet-co.patch
 Patch80003: amlogic-expose-cec-phy-address-over-sysfs.patch
 Patch80004: amlogic-use-millicelsius-for-system-temperature.patch
 Patch80005: amlogic-default-debug-level-to-err.patch
@@ -418,7 +416,6 @@ Patch80007: amlogic-fix-possible-segfault-in-keymap.patch
 Patch80008: amlogic-vendor-keys-for-samsung-anynet.patch
 Patch80009: amlogic-upstream-patch-for-hdmi_tx.patch
 Patch80010: amlogic-fix-cec-responses-hardcoded-to-send-to-tv.patch
-Patch80011: amlogic-fix-cec_config-when-not-overridden-by-dtb.patch
 Patch80012: amlogic-always-reply-to-set-stream-path-cec-message.patch
 Patch80013: amlogic-get-tv-vendor-id-on-cec-startup.patch
 Patch80014: amlogic-record-device-vendor-ids.patch
@@ -426,7 +423,6 @@ Patch80015: arm-LLVMLinux-use-static-inline-in-arm-ftrace-h.patch
 Patch80016: ODROID-C-Fix-umplock-makefile.patch
 Patch80017: ODROID-C-Make-HDMI-messages-less-noisy.patch
 Patch80018: ODROID-C-Fix-null-pointer-dereference-in-framerate-a.patch
-Patch80019: ODROID-C-Do-not-return-success-from-probe-if-DAC-is-.patch
 Patch80020: ODROID-C-Quiet-some-more-rowdy-kernel-messages.patch
 Patch80021: ODROID-C-Populate-system-revision-serial-from-efuse.patch
 
@@ -1092,9 +1088,7 @@ ApplyPatch Set-UID-in-sess_auth_rawntlmssp_authenticate-too.patch
 #rhbz 1163574
 ApplyPatch acpi-video-Add-disable_native_backlight-quirk-for-De.patch
 
-ApplyPatch fix-backports-dir.patch
 ApplyPatch odroid-c-dts-fix-side-effect-issue-due-to-cec-change.patch
-ApplyPatch ODROID-C-Fix-null-pointer-dereference-in-ethernet-co.patch
 ApplyPatch amlogic-expose-cec-phy-address-over-sysfs.patch
 ApplyPatch amlogic-use-millicelsius-for-system-temperature.patch
 ApplyPatch amlogic-default-debug-level-to-err.patch
@@ -1103,7 +1097,6 @@ ApplyPatch amlogic-fix-possible-segfault-in-keymap.patch
 ApplyPatch amlogic-vendor-keys-for-samsung-anynet.patch
 ApplyPatch amlogic-upstream-patch-for-hdmi_tx.patch
 ApplyPatch amlogic-fix-cec-responses-hardcoded-to-send-to-tv.patch
-ApplyPatch amlogic-fix-cec_config-when-not-overridden-by-dtb.patch
 ApplyPatch amlogic-always-reply-to-set-stream-path-cec-message.patch
 ApplyPatch amlogic-get-tv-vendor-id-on-cec-startup.patch
 ApplyPatch amlogic-record-device-vendor-ids.patch
@@ -1111,7 +1104,6 @@ ApplyPatch arm-LLVMLinux-use-static-inline-in-arm-ftrace-h.patch
 ApplyPatch ODROID-C-Fix-umplock-makefile.patch
 ApplyPatch ODROID-C-Make-HDMI-messages-less-noisy.patch
 ApplyPatch ODROID-C-Fix-null-pointer-dereference-in-framerate-a.patch
-ApplyPatch ODROID-C-Do-not-return-success-from-probe-if-DAC-is-.patch
 ApplyPatch ODROID-C-Quiet-some-more-rowdy-kernel-messages.patch
 ApplyPatch ODROID-C-Populate-system-revision-serial-from-efuse.patch
 
@@ -1890,7 +1882,10 @@ fi
 #                                    ||----w |
 #                                    ||     ||
 %changelog
-* Sun Dec 07 2015 Scott K Logan <logans@cottsay.net> - 3.10.80-74.2
+* Sat Oct 15 2016 Scott K Logan <logans@cottsay.net> - 3.10.103-11
+- Update to version 3.10.103-11
+
+* Mon Dec 07 2015 Scott K Logan <logans@cottsay.net> - 3.10.80-74.2
 - Add various bugfix patches
 
 * Thu Dec 03 2015 Scott K Logan <logans@cottsay.net> - 3.10.80-74.1

@@ -1,13 +1,13 @@
-From 22531dcc073b62ab72ea4e9d2599cf787853dbc4 Mon Sep 17 00:00:00 2001
+From 9a2d255b13d6382596ff823dc6a397759b553e79 Mon Sep 17 00:00:00 2001
 From: Scott K Logan <logans@cottsay.net>
 Date: Sat, 2 May 2015 21:29:20 -0700
 Subject: [PATCH] amlogic: Use millicelsius for system temperature
 
 ---
- arch/arm/mach-meson8b/thermal.c           | 2 +-
- drivers/amlogic/thermal/amlogic_thermal.c | 6 +++---
- drivers/thermal/thermal_core.c            | 9 +--------
- 3 files changed, 5 insertions(+), 12 deletions(-)
+ arch/arm/mach-meson8b/thermal.c           |  2 +-
+ drivers/amlogic/thermal/amlogic_thermal.c | 18 +++++++++---------
+ drivers/thermal/thermal_core.c            |  9 +--------
+ 3 files changed, 11 insertions(+), 18 deletions(-)
 
 diff --git a/arch/arm/mach-meson8b/thermal.c b/arch/arm/mach-meson8b/thermal.c
 index f17da11..d53cc4b 100644
@@ -23,12 +23,42 @@ index f17da11..d53cc4b 100644
  		}
  	}
 diff --git a/drivers/amlogic/thermal/amlogic_thermal.c b/drivers/amlogic/thermal/amlogic_thermal.c
-index d685c65..f1dd2af 100644
+index d685c65..9edae97 100644
 --- a/drivers/amlogic/thermal/amlogic_thermal.c
 +++ b/drivers/amlogic/thermal/amlogic_thermal.c
-@@ -669,7 +669,7 @@ static int amlogic_get_temp(struct thermal_zone_device *thermal,
+@@ -644,21 +644,21 @@ static unsigned long aml_cal_virtual_temp(void)
+ #endif
+ 
+ /* Get temperature callback functions for thermal zone */
+-int aa=50;
++int aa=50000;
+ int trend=1;
+ static int amlogic_get_temp(struct thermal_zone_device *thermal,
+ 			unsigned long *temp)
+ {
+ #if 0
+-	if(aa>=100)
++	if(aa>=100000)
+ 		trend=1;
+-	else if (aa<=40)
++	else if (aa<=40000)
+ 		trend=0;
+ 	
+ 	if(trend)
+-		aa=aa-5;
++		aa=aa-5000;
+ 	else
+-		aa=aa+5;
++		aa=aa+5000;
+ 	//get_random_bytes(&aa,4);
+ 	printk("========  temp=%d\n",aa);
+ 	*temp=aa;
+@@ -667,9 +667,9 @@ static int amlogic_get_temp(struct thermal_zone_device *thermal,
+     if (trim_flag) { 
+ 	    *temp = (unsigned long)get_cpu_temp();
      } else if (virtual_thermal_en) {
- 	    *temp = aml_cal_virtual_temp(); 
+-	    *temp = aml_cal_virtual_temp(); 
++	    *temp = aml_cal_virtual_temp() * 1000;
      } else {
 -        *temp = 45;                     // fix cpu temperature to 45 if not trimed && disable virtual thermal    
 +        *temp = 45000;                  // fix cpu temperature to 45 if not trimed && disable virtual thermal
@@ -75,5 +105,5 @@ index 936f6ec..d024180 100644
  
  static ssize_t
 -- 
-2.1.0
+2.5.5
 

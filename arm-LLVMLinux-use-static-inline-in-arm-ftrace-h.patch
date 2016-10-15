@@ -1,4 +1,4 @@
-From ef4fea130eeb70eff4f3a549fd3f6e9b11437550 Mon Sep 17 00:00:00 2001
+From d3bfcbf3cffca9ab45a47661b605f27c18de74f0 Mon Sep 17 00:00:00 2001
 From: ZaneZam <cyxman@yahoo.com>
 Date: Thu, 26 Mar 2015 14:50:10 +0100
 Subject: [PATCH] arm: LLVMLinux: use static inline in ARM ftrace.h
@@ -32,11 +32,11 @@ index f89515a..2bb8cac 100644
  	return NULL;
  }
 diff --git a/arch/arm/kernel/return_address.c b/arch/arm/kernel/return_address.c
-index f1aef84..49477f0 100644
+index fafedd8..6b6b4d0 100644
 --- a/arch/arm/kernel/return_address.c
 +++ b/arch/arm/kernel/return_address.c
-@@ -62,10 +62,12 @@ void *return_address(unsigned int level)
- /* #warning "TODO: return_address should use unwind tables" */
+@@ -63,10 +63,12 @@ void *return_address(unsigned int level)
+ #warning "TODO: return_address should use unwind tables"
  #endif
  
 +/*
@@ -48,3 +48,6 @@ index f1aef84..49477f0 100644
  
  #endif /* if defined(CONFIG_FRAME_POINTER) && !defined(CONFIG_ARM_UNWIND) / else */
  
+-- 
+2.5.5
+

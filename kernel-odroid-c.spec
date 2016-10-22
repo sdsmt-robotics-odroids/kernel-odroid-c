@@ -30,7 +30,7 @@ Summary: The Linux kernel
 # For non-released -rc kernels, this will be appended after the rcX and
 # gitX tags, so a 3 here would become part of release "0.rcX.gitX.3"
 #
-%global baserelease 11
+%global baserelease 11.1
 %global fedora_build %{baserelease}
 
 # base_sublevel is the kernel version we're starting with and patching
@@ -425,6 +425,7 @@ Patch80017: ODROID-C-Make-HDMI-messages-less-noisy.patch
 Patch80018: ODROID-C-Fix-null-pointer-dereference-in-framerate-a.patch
 Patch80020: ODROID-C-Quiet-some-more-rowdy-kernel-messages.patch
 Patch80021: ODROID-C-Populate-system-revision-serial-from-efuse.patch
+Patch80022: dirty-cow.patch
 
 # END OF PATCH DEFINITIONS
 
@@ -1106,6 +1107,7 @@ ApplyPatch ODROID-C-Make-HDMI-messages-less-noisy.patch
 ApplyPatch ODROID-C-Fix-null-pointer-dereference-in-framerate-a.patch
 ApplyPatch ODROID-C-Quiet-some-more-rowdy-kernel-messages.patch
 ApplyPatch ODROID-C-Populate-system-revision-serial-from-efuse.patch
+ApplyPatch dirty-cow.patch
 
 # END OF PATCH APPLICATIONS
 
@@ -1882,6 +1884,10 @@ fi
 #                                    ||----w |
 #                                    ||     ||
 %changelog
+* Sat Oct 22 2016 Scott K Logan <logans@cottsay.net> - 3.10.103-11.1
+- Add patch for CVE-2016-5195
+- Add module filter script for armv7hnl
+
 * Sat Oct 15 2016 Scott K Logan <logans@cottsay.net> - 3.10.103-11
 - Update to version 3.10.103-11
 
